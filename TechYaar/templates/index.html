@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechYaar - Your IT Support Buddy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Scrollbar */
+    #chat::-webkit-scrollbar { width: 8px; }
+    #chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 4px; }
+
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    code { background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    pre { background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; overflow-x: auto; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-900 via-indigo-800 to-gray-900 min-h-screen flex flex-col text-white font-sans">
+
+  <!-- 🌟 Navigation -->
+  <nav class="flex justify-between items-center px-8 py-4 bg-white/10 backdrop-blur-md border-b border-white/20">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl">🧑‍💻</span>
+      <h1 class="text-2xl font-bold">TechYaar</h1>
+    </div>
+    <ul class="hidden md:flex gap-6 text-blue-100">
+      <li><a href="#" class="hover:text-white transition">Home</a></li>
+      <li><a href="#" class="hover:text-white transition">Services</a></li>
+      <li><a href="#" class="hover:text-white transition">About</a></li>
+      <li><a href="#" class="hover:text-white transition">Contact</a></li>
+    </ul>
+    <button class="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-full font-semibold">Get Support</button>
+  </nav>
+
+  <!-- 💡 Hero Section -->
+  <section class="flex flex-col md:flex-row items-center justify-between px-10 md:px-20 py-16 md:py-24">
+    <div class="max-w-xl">
+      <h2 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4">
+        Smart IT Support with <span class="text-blue-400">TechYaar</span>
+      </h2>
+      <p class="text-blue-100 text-lg mb-8">
+        Tired of tech troubles? Chat instantly with TechYaar — your intelligent assistant for solving IT problems, guiding you through setups, and fixing glitches fast.
+      </p>
+      <a href="#chat-section" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full font-semibold transition">
+        Start Chatting Now 🚀
+      </a>
+    </div>
+
+    <div class="mt-12 md:mt-0">
+      <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Tech Support Illustration" class="w-80 md:w-[28rem] drop-shadow-2xl">
+    </div>
+  </section>
+
+ <!-- Chat Section -->
+<section id="chat-section" class="bg-white/10 backdrop-blur-md border-t border-white/20 rounded-t-3xl px-6 md:px-16 py-10 flex flex-col flex-1">
+  <h3 class="text-3xl font-semibold mb-6 text-center text-blue-100">Chat with TechYaar</h3>
+
+  <div id="chat" class="flex-1 overflow-y-auto bg-white/5 p-6 rounded-2xl shadow-inner space-y-6 mb-6"></div>
+
+  <div class="flex gap-3">
+    <input id="userInput" type="text" placeholder="Type your IT issue and press Enter..."
+      class="flex-1 bg-white/20 text-white placeholder-gray-300 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      onkeydown="if(event.key==='Enter'){sendMessage();}">
+    <button onclick="sendMessage()"
+      class="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-6 py-3 font-semibold transition">Send</button>
+    <button onclick="clearChat()"
+      class="bg-gray-500 hover:bg-gray-600 text-white rounded-2xl px-5 py-3 font-semibold transition">Clear</button>
+  </div>
+</section>
+
+<script>
+  function formatBotMessage(text) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+    text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    const lines = text.split('\n');
+    let formatted = '', ulOpen = false;
+    lines.forEach(line => {
+      if (line.startsWith('* ')) {
+        if (!ulOpen) { formatted += '<ul class="list-disc list-inside mb-2">'; ulOpen = true; }
+        formatted += `<li>${line.substring(2)}</li>`;
+      } else {
+        if (ulOpen) { formatted += '</ul>'; ulOpen = false; }
+        formatted += line + '<br>';
+      }
+    });
+    if (ulOpen) formatted += '</ul>';
+    return formatted;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chat = document.getElementById("chat");
+
+    // User bubble (wider and responsive)
+    const userBubble = document.createElement("div");
+    userBubble.className = "flex justify-end fade-in";
+    userBubble.innerHTML = `
+      <div class="bg-blue-600 text-white px-5 py-4 rounded-2xl shadow max-w-[80%] w-fit break-words leading-relaxed">
+        ${message}
+        <div class="text-xs text-blue-200 text-right mt-2">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+      </div>`;
+    chat.appendChild(userBubble);
+    chat.scrollTop = chat.scrollHeight;
+
+    input.value = '';
+    input.disabled = true;
+
+    // Typing indicator
+    const botBubble = document.createElement("div");
+    botBubble.className = "flex justify-start fade-in";
+    botBubble.innerHTML = `<div class="bg-white/20 text-white px-5 py-4 rounded-2xl shadow max-w-[80%] w-fit">🤖 TechYaar typing...</div>`;
+    chat.appendChild(botBubble);
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const res = await fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await res.json();
+
+      botBubble.innerHTML = `
+        <div class="bg-green-600/90 text-white px-5 py-4 rounded-2xl shadow max-w-[80%] w-fit leading-relaxed">
+          🤖 ${formatBotMessage(data.reply)}
+          <div class="text-xs text-green-200 text-right mt-2">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        </div>`;
+      chat.scrollTop = chat.scrollHeight;
+    } catch (err) {
+      botBubble.innerHTML = `<div class="bg-red-600 text-white px-5 py-4 rounded-2xl shadow max-w-[80%] w-fit">❌ Error: ${err.message}</div>`;
+    } finally {
+      input.disabled = false;
+      input.focus();
+    }
+  }
+
+  function clearChat() {
+    document.getElementById("chat").innerHTML = "";
+    document.getElementById("userInput").focus();
+  }
+</script>
